@@ -43,12 +43,12 @@ def stereo_reconstruction(left_img_path, right_img_path, disparity_scale):
         window2_flat = np.reshape(right_windows[scanline_idx], (right_windows[scanline_idx].shape[0], -1))
         
         path_matrix = get_path_matrix(window1_flat, window2_flat, Config.OCCLUSION_COST)
-        left_disparity, right_disparity = find_best_path(path_matrix, window1_flat.shape[0] - 1)
+        left_disparity, right_disparity = find_best_path(path_matrix, window1_flat.shape[0] - 1, disparity_scale)
         
         left_stereo_img[scanline_idx, :left_disparity.shape[0]] = left_disparity #np.add(indexes - np.arange(indexes.shape[0]), disparity_scale)#Config.FOCAL_LENGTH * Config.BASELINE) / 
         right_stereo_img[scanline_idx, :right_disparity.shape[0]] = right_disparity
 
-        if scanline_idx%300 == 0:
+        if scanline_idx%100 == 0:
             print('Scanline:', scanline_idx)
             # cv2.imshow('stereo', left_stereo_img)
             # cv2.waitKey(0)
@@ -94,7 +94,7 @@ def get_path_matrix(window1, window2, occulusion):
     return path_matrix
 
 @jit(nopython=True)
-def find_best_path(path_matrix, num_cols):
+def find_best_path(path_matrix, num_cols, disparity_scale):
     
     left_disparity = np.zeros(num_cols)
     right_disparity = np.zeros(num_cols)
@@ -103,8 +103,8 @@ def find_best_path(path_matrix, num_cols):
     
     while(i > 1 and j > 1):     
         if path_matrix[i,j] == 0:
-            last_left_disp = abs(i-j)
-            last_right_disp = abs(j-i) 
+            last_left_disp = abs(i-j) * disparity_scale
+            last_right_disp = abs(j-i) * disparity_scale
             
             left_disparity[i] = last_left_disp # Disparity Image in Left Image coordinates
             right_disparity[j] = last_right_disp # Disparity Image in Right Image coordinates
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     
     for dirpath, dirnames, filenames in os.walk(dir):
         
-        print(dirpath, dirnames)
+        # print(dirpath, dirnames)
         metrics = np.zeros((len(dirnames), 3))
         
         for sub_dir in range(len(dirnames)):  
@@ -226,15 +226,18 @@ if __name__ == "__main__":
             
             elapsed_time = (end-start)/60.0    
             
-            cv2.imwrite(os.path.join(current_dir, 'res1.png'), right_stereo_img)
-            cv2.imwrite(os.path.join(current_dir, 'res5.png'), left_stereo_img)
+            if not os.path.exists(os.path.join(current_dir, out_dir)):
+                os.mkdir(os.path.join(current_dir, out_dir))
             
-            left_stereo_img = cv2.imread(os.path.join(current_dir, 'res1.png'))
-            right_stereo_img = cv2.imread(os.path.join(current_dir, 'res5.png'))
+            cv2.imwrite(os.path.join(current_dir, out_dir, 'res1.png'), right_stereo_img)
+            cv2.imwrite(os.path.join(current_dir, out_dir, 'res5.png'), left_stereo_img)
             
+            right_stereo_img = cv2.imread(os.path.join(current_dir, out_dir, 'res1.png'))
+            left_stereo_img = cv2.imread(os.path.join(current_dir, out_dir, 'res5.png'))
+              
             disp_right = cv2.imread(os.path.join(current_dir, 'disp1.png'))
             disp_left = cv2.imread(os.path.join(current_dir, 'disp5.png'))
-            
+
             left_bmp = bmp_evalution(left_stereo_img, disp_left, Config.DELTA)
             right_bmp = bmp_evalution(right_stereo_img, disp_left, Config.DELTA)
                         
