@@ -1,5 +1,3 @@
-import math
-from matplotlib.path import Path
 import cv2
 import argparse
 import os
@@ -47,7 +45,12 @@ def stereo_reconstruction(left_img_path, right_img_path, disparity_scale):
         
         left_stereo_img[scanline_idx, :left_disparity.shape[0]] = left_disparity #np.add(indexes - np.arange(indexes.shape[0]), disparity_scale)#Config.FOCAL_LENGTH * Config.BASELINE) / 
         right_stereo_img[scanline_idx, :right_disparity.shape[0]] = right_disparity
-
+        
+        # indexes = ssd(window1_flat, window2_flat)
+        
+        # left_stereo_img[scanline_idx, :indexes.shape[0]] = (indexes - np.arange(indexes.shape[0])) * disparity_scale
+        # right_stereo_img[scanline_idx, :indexes.shape[0]] = (indexes - np.arange(indexes.shape[0])) * disparity_scale
+        
         if scanline_idx%100 == 0:
             print('Scanline:', scanline_idx)
             # cv2.imshow('stereo', left_stereo_img)
@@ -247,8 +250,7 @@ if __name__ == "__main__":
             
             metrics[sub_dir] = np.array([left_bmp, right_bmp, elapsed_time])
 
-        plot_values(metrics, dirpath, dirnames)
-        
+        plot_values(metrics, dirpath, dirnames) 
         break
 
     

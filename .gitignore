@@ -1,2 +1,5 @@
-/images
-/images_half
+/report
+!/report/report.tex
+!/report/report.pdf
+!/report/acl2020.bib
+!/report/figures
