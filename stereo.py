@@ -19,11 +19,13 @@ class Config:
     BASELINE = 160 #mm
     WINDOW_SIZE = 10 #experiment with different sizes, ask what is typical?
     OCCLUSION_COST = 100000
-    OCCLISION_FILLING = True
     DELTA = 1
     
 
 def stereo_reconstruction(left_img_path, right_img_path, disparity_scale):
+    '''
+    Main function to get stereo reonstruciton using DP with occlusion filling
+    '''
     left_img = cv2.imread(left_img_path)
     right_img = cv2.imread(right_img_path)
     
@@ -98,6 +100,9 @@ def get_path_matrix(window1, window2, occulusion):
 
 @jit(nopython=True)
 def find_best_path(path_matrix, num_cols, disparity_scale):
+    '''
+    Finds shortest path from start column to ending column, i.e. best disparity values for scaline
+    '''
     
     left_disparity = np.zeros(num_cols)
     right_disparity = np.zeros(num_cols)
@@ -125,6 +130,8 @@ def find_best_path(path_matrix, num_cols, disparity_scale):
 
 def ssd(window1, window2):
     '''
+    Simple SSD formula
+    
     window1 (left) shape == (m,1,n,n,3)
     window2 (right) shape == (m,1,n,n,3)
     '''
