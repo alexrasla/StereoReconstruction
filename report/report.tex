@@ -64,7 +64,7 @@ In order to achieve a good stereo reconstruction, I first ensured I could find a
 
 For this stereo reconstruction project, I used the 2006 Middlebury Stereo Dataset \cite{Hirschmller2007EvaluationOC}. 
  This dataset is a very trusted and standard dataset for stereo reconstruction algorithms because of its high-quality stereo 
- images and accurate ground truth disparity maps. Specifically, I utilized the Aloe, Cloth1, Rocks1, and Wood1 datasets for 
+ images and accurate ground truth disparity maps. Specifically, I utilized the Aloe, Cloth1, Cloth2, Midd1, Midd2, Rocks1, and Wood1 datasets for 
  both the full-size (1282x1110) and half-size (665x555) images.  Unfortunately, because it is very difficult and resource 
  dependent to generate accurate ground truth disparity maps, I was unable to create my own dataset to test my stereo reconstruction 
  algorithm.
@@ -165,14 +165,14 @@ My initial, baseline attempt at generating disparity maps was simply using SSD. 
 \begin{figure}
   \centering
   \includegraphics[width=0.40\textwidth]{figures/full_plots.png}
-  \caption{A plot of the BMP score for the left and right disparity maps for \textbf{full-size} images in the Aloe, Rocks1, Cloth1, and Wood1 datasets}
+  \caption{A plot of the BMP score for the left and right disparity maps for \textbf{full-size} images in the Aloe, Cloth1, Cloth2, Midd1, Midd2, Rocks1, and Wood1 datasets}
   \label{fig:full_plots}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=0.40\textwidth]{figures/half_plots.png}
-  \caption{A plot of the BMP score for the left and right disparity maps for \textbf{half-size} images in the Aloe, Rocks1, Cloth1, and Wood1 datasets}
+  \caption{A plot of the BMP score for the left and right disparity maps for \textbf{half-size} images in the Aloe, Cloth1, Cloth2, Midd1, Midd2, Rocks1, and Wood1 datasets}
   \label{fig:half_plots}
 \end{figure}
 
@@ -190,14 +190,15 @@ Throughout this project, I explored the difference between SSD disparity maps, d
 To improve upon this and achieve a better result, I implemented the dynamic programming algorithm described in \cite{COX1996542}. 
  In order to implement this algorithm, it required an occlusion cost parameter which, after experimentation, I found generated the best BMP values at $100,000$. This occlusion 
  cost represents the cost to “occlude” a DSI matrix value, and proceed to the next pixel value. This algorithm enhanced qualitative visual 
- accuracy of the raw SSD results by finding the shortest path on a particular scanline, and ommitting SSD values that were greater than the occlusion cost. Typically, I noticed that with an occlusion cost of any multiple of $100,000$, 
+ accuracy of the raw SSD results by finding the shortest path on a particular scanline and ommitting SSD values that were greater than the occlusion cost. Typically, I noticed that with an occlusion cost of any multiple of $100,000$, 
  the BMP values increased. This makes sense because the shortest path algorithm relies on the occlusion cost to omit outlier pixels that have SSD window values that 
  are too high. If these values aren't omitted, poor disparity maps will be generated. On the other hand, if the cost is too low, we may end up with the same result as the SSD image, making the optimzations irrelevant. To further improve upon the dynamic programming algorithm, I implemented occlusion filling, which simply uses the disparity
  value of an adjacent pixel as opposed to giving it a grayscale value of $0$. 
  
-Alongside experimenting with the occlusion cost and reconsturction algorithms, I also experimented with the window size, and the magnitude of $\delta$.
- With a bigger window size the runtime is around $2.5$ times slower, and the BMP values increase significantly. When changing the
-window size from $10$ to $30$, the half-size images BMP range was between $0.52-0.89$ ($\delta = 5$). For Cloth1 specifically, the BMP increased from $0.52$ to $0.74$, a nearly $25\%$ increase poorly matched pixels. 
+Alongside experimenting with the occlusion cost and reconsturction algorithms, I also experimented with the window size and the magnitude of $\delta$.
+When changing the window size from $10$ to $30$, the runtime was around $2.5$ times slower and the BMP range of values increased significantly to between
+ $0.52-0.89$ (half-size, $\delta = 5$). For Cloth1 specifically, the BMP increased from $0.52$ to $0.74$, a nearly $25\%$ increase poorly matched pixels. This is because
+ larger window sizes cannot accurately detect details in an image, causing a pixel by pixel evaluation metric like BMP to be heavily impacted.
  When increasing the delta values even slightly, I expected the BMP values to decrease and lead to a better quantitative evaluation of the disparity images; however, as we can see in Table 
  \ref{tab:table1}, the change in $\delta$ values did not produce a signifcant change in BMP.  This is likely because the values 
  that lie outside of $\delta$ lie extremely far outside of $\delta$ and require $\delta$ values of at least a two orders of magnitude
