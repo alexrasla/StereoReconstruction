@@ -15,6 +15,11 @@ python3 stereo.py --dir [head directory of images]
 For this command, the ```--dir``` flag should be the head directory of images that contains subdirectories 
  with the downloaded/test datasets from Middlebury [[2]](#2). The program goes through all the subdirectories in ```--dir```, gets right and left disparity images, saves left and right disparity  maps into the out folder in the subdirectory, and generates a bar graph of the Bad Matched Pixels (BMP) and the runtime to calculate the maps for each of the different datasets. For the full-size images (1282x1110), the ```--scale``` should be 1; for half-size, the ```--scale``` should be 2; for third-size, it should be 3.
 
+ A sample command is: 
+ ```
+ python3 stereo.py --dir ./half_images --left view5.png --right view1.png --out out --scale 2
+ ```
+
 ## References
 <a id="1">[1]</a> Cox, I.J., Hingorani, S.L., Rao, S., & Maggs, B.M. (1996). A Maximum Likelihood Stereo Algorithm. Comput. Vis. Image Underst., 63, 542-567.
 
